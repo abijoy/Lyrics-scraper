@@ -62,19 +62,24 @@ def lyricsFinderAz(song_title, artist_name):
 	song_title = song_title.replace("'", "")
 	song_title = ''.join(song_title.strip().lower().split())
 	artist_name = ''.join(artist_name.strip().lower().split())
-	print(song_title, artist_name)
+	print(f'{song_title} {artist_name}')
 	url = make_url_az(song_title, artist_name)
+	print(url)
 	raw_html = simple_get(url)
+	#print(raw_html)
 	if raw_html is None:
 		print('lyrics Not Found.')
 		return None
 
 	html = BeautifulSoup(raw_html, 'html.parser')
 
-	lyrics = ''
+	lyrics = '♪♪♪'
 	for div in html.select('div'):
 		if not div.has_attr('class'):
-			lyrics = '♪♪♪ \033[1;32;40m {} ♪♪♪'.format(str(div.text))
+			#print(div.text)
+			lyrics += str(div.text)
+
+	lyrics += '\n♪♪♪'
 	return lyrics
 
 
@@ -85,21 +90,23 @@ def lyrics_file_check(fname):
 		with open(fname, 'r') as f:
 			# print(f.read())
 			for line in f:
-				print(line)
+				print(line, end='')
 		return True
 
 	except FileNotFoundError:
 		return False
 
 if __name__ == '__main__':
+
+	if len(sys.argv) != 3:
+		print("Usage: python3 song_title artist_name")
+		sys.exit()
+
 	if not os.path.exists('downloaded_lyrics'):
 		os.makedirs('downloaded_lyrics')
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	fname = f'{dir_path}/downloaded_lyrics/' + sys.argv[1] + '-' + sys.argv[2] + '.txt'
 
-	if len(sys.argv) != 3:
-		print("Usage: python3 song_title artist_name")
-		sys.exit()
 	if not lyrics_file_check(fname):
 		azlyrics = lyricsFinderAz(sys.argv[1], sys.argv[2])
 		if azlyrics:
